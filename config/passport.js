@@ -1,64 +1,6 @@
 const LocalStrategy = require('passport-local').Strategy;
 const User = require('../app/models/user');
-
-function validateEmail(email) {
-  const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-  return re.test(email);
-}
-
-function validatePassword(password) {
-  const re = /^(?=.*[0-9])(?=.*[A-Z])[a-zA-Z0-9._-]+$/;
-  const lengthOk = password.length >= 8;
-  return lengthOk && re.test(password);
-}
-
-function validateIdNum(idNum) {
-  const re = /^[0-9]+$/;
-  return re.test(idNum);
-}
-
-function validateIdType(idType) {
-  return idType === 'cc' || idType === 'ti';
-}
-
-function validateName(name) {
-  const re = /^[a-zA-Z ]+$/;
-  return re.test(name);
-}
-
-function validateDate(date) {
-  let [year, month, day] = date.split('-');
-  const re = /^[0-9]+$/;
-  if (!re.test(year) || !re.test(month) || !re.test(day))
-    return false;
-
-  let y = +year, m = +month, d = +day;
-  let daysInMonth;
-  switch (m) {
-    case 1:
-      daysInMonth = (y % 4 == 0 && y % 100) || y % 400 == 0 ? 29 : 28;
-    case 8: case 3: case 5: case 10:
-      daysInMonth = 30;
-    default:
-    daysInMonth = 31
-  }
-
-  return m >= 0 && m < 12 && d > 0 && d <= daysInMonth;
-}
-
-function validateGender(gender) {
-  return gender === 'M' || gender === 'F';
-}
-
-function validatePhoneNumber(phoneNumber) {
-  const re = /^[0-9]+$/;
-  const lengthOk = (phoneNumber.length === 7 || phoneNumber.length === 10);
-  return lengthOk && re.test(phoneNumber);
-}
-
-function vaidateUserType(admin, psychologist, student) {
-  return admin || psychologist || student;
-}
+const utilities = require('../app/utilities');
 
 module.exports = (passport) => {
   passport.serializeUser((user, done) => {
@@ -76,6 +18,7 @@ module.exports = (passport) => {
     passwordField: 'password',
     passReqToCallback: true
   }, (req, email, password, done) => {
+    console.log('Passoport:');
     console.log(req.body);
     User.findOne({'email': email}, (err, user) => {
       if (err)
@@ -85,54 +28,54 @@ module.exports = (passport) => {
       } else {
         let newUser = new User();
 
-        if (validateEmail(req.body.email))
+        if (utilities.validateEmail(req.body.email))
           newUser.email = email;
         else
           return done(null, false, req.flash('signupMessage', 'Bad email.'));
 
-        if (validatePassword(req.body.password))
+        if (utilities.validatePassword(req.body.password))
           newUser.password = newUser.generateHash(password);
         else
           return done(null, false, req.flash('signupMessage', 'Password too weak.'));
 
-        if (validateIdNum(req.body.idNum))
+        if (utilities.validateIdNum(req.body.idNum))
           newUser.idNum = req.body.idNum;
         else
           return done(null, false, req.flash('signupMessage', 'Invalid ID number.'));
 
-        if (validateIdType(req.body.idType))
+        if (utilities.validateIdType(req.body.idType))
           newUser.idType = req.body.idType;
         else
           return done(null, false, req.flash('signupMessage', 'Invalid ID type.'));
 
-        if (validateName(req.body.name) && validateName(req.body.surname)) {
+        if (utilities.validateName(req.body.name) && utilities.validateName(req.body.surname)) {
           newUser.name = req.body.name;
           newUser.surname = req.body.surname;
         } else {
           return done(null, false, req.flash('signupMessage', 'Invalid name.'));
         }
 
-        if (validateDate(req.body.birthDate))
+        if (utilities.validateDate(req.body.birthDate))
           newUser.birthDate = req.body.birthDate;
         else
           return done(null, false, req.flash('signupMessage', 'Invalid date.'));
 
-        if (validateGender(req.body.gender))
+        if (utilities.validateGender(req.body.gender))
           newUser.gender = req.body.gender;
         else
           return done(null, false, req.flash('signupMessage', 'Invalid gender.'));
 
-        if (validateName(req.body.address))
+        if (utilities.validateName(req.body.address))
           newUser.address = req.body.address;
         else
           return done(null, false, req.flash('signupMessage', 'Invalid address.'));
 
-        if (validatePhoneNumber(req.body.phoneNumber))
+        if (utilities.validatePhoneNumber(req.body.phoneNumber))
           newUser.phoneNumber = req.body.phoneNumber;
         else
           return done(null, false, req.flash('signupMessage', 'Invalid phoneNumber.'));
 
-        if (vaidateUserType(req.body.admin, req.body.psychologist, req.body.student)) {
+        if (utilities.vaidateUserType(req.body.admin, req.body.psychologist, req.body.student)) {
           newUser.type = [];
           if (req.body.admin)
             newUser.type.push('admin');
