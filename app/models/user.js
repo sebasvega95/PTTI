@@ -16,7 +16,8 @@ const userSchema = mongoose.Schema({
   address: String,
   phoneNumber: String,
   type: Array,
-  disabled: Boolean
+  disabled: Boolean,
+  tempStr: String
 });
 
 userSchema.methods.generateHash = function(password) {
