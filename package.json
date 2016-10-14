@@ -2,6 +2,9 @@
   "name": "ptti",
   "version": "1.0.0",
   "description": "A web plataform for managing psychology tests",
+  "engines": {
+    "node": "6.8.0"
+  },
   "main": "server.js",
   "dependencies": {
     "babel-register": "^6.16.3",
