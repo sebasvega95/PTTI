@@ -20,7 +20,7 @@ module.exports = {
   },
 
   validateName: function (name) {
-    const re = /^[a-zA-Z ]+$/;
+    const re = /^[a-zA-Z0-9 ]+$/;
     return re.test(name);
   },
 

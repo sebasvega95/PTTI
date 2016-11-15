@@ -27,7 +27,7 @@ body {
   display: inline-block;
 }
 
-#add-user {
+.add {
   text-align: center;
   padding: 30px;
 }

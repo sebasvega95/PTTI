@@ -96,22 +96,31 @@ module.exports = (app, passport) => {
       console.log(req.body);
       if (!utilities.validateEmail(req.body.email)) {
         req.flash('userManagementMessage', 'Bad email.');
+        res.redirect('/user-management');
       } else if (!utilities.validateIdNum(req.body.idNum)) {
         req.flash('userManagementMessage', 'Invalid ID number.');
+        res.redirect('/user-management');
       } else if (!utilities.validateIdType(req.body.idType)) {
         req.flash('userManagementMessage', 'Invalid ID type.');
+        res.redirect('/user-management');
       } else if (!utilities.validateName(req.body.name) || !utilities.validateName(req.body.surname)) {
         req.flash('userManagementMessage', 'Invalid name.');
+        res.redirect('/user-management');
       } else if (!utilities.validateDate(req.body.birthDate)) {
         req.flash('userManagementMessage', 'Invalid date.');
+        res.redirect('/user-management');
       } else if (!utilities.validateGender(req.body.gender)) {
         req.flash('userManagementMessage', 'Invalid gender.');
+        res.redirect('/user-management');
       } else if (!utilities.validatePhoneNumber(req.body.phoneNumber)) {
         req.flash('userManagementMessage', 'Invalid phoneNumber.');
+        res.redirect('/user-management');
       } else if (!utilities.validateName(req.body.address)) {
         req.flash('userManagementMessage', 'Invalid address.');
+        res.redirect('/user-management');
       } else if(!utilities.vaidateUserType(req.body.admin, req.body.psychologist, req.body.student)) {
         req.flash('userManagementMessage', 'Invalid user type.');
+        res.redirect('/user-management');
       } else {
         let changes = {
           email: req.body.email,
@@ -308,17 +317,24 @@ module.exports = (app, passport) => {
       console.log(req.body);
       if (!utilities.validateIdNum(req.body.nit)) {
         req.flash('instituteManagementMessage', 'Invalid NIT.');
+        res.redirect('/institute-management');
       } else if (!utilities.validateName(req.body.name)) {
         req.flash('instituteManagementMessage', 'Invalid name.');
+        res.redirect('/institute-management');
       } else if (!utilities.validatePhoneNumber(req.body.phoneNumber)) {
         req.flash('instituteManagementMessage', 'Invalid phoneNumber.');
+        res.redirect('/institute-management');
       } else if (!utilities.validateName(req.body.address)) {
         req.flash('instituteManagementMessage', 'Invalid address.');
+        res.redirect('/institute-management');
       } else if (!utilities.validateName(req.body.city)) {
         req.flash('instituteManagementMessage', 'Invalid city.');
+        res.redirect('/institute-management');
       } else if(!utilities.validateWebsite(req.body.website)) {
         req.flash('instituteManagementMessage', 'Invalid website.');
+        res.redirect('/institute-management');
       } else {
+        console.log('change');
         let changes = {
           nit: req.body.nit,
           name: req.body.name,
@@ -333,6 +349,8 @@ module.exports = (app, passport) => {
             console.log(err);
             req.flash('instituteManagementMessage', 'Error writing to database.');
           } else {
+            console.log('change ok');
+
             req.flash('instituteManagementMessage', 'Changes saved successfully.');
           }
           res.redirect('/institute-management');
