@@ -63,8 +63,13 @@ module.exports = {
     return re.test(website);
   },
 
-  validateGroupName: function (name) {
+  validateKeyName: function(name) {
     const re = /^[a-zA-Z0-9-_]+$/;
     return re.test(name);
+  },
+
+  validateQuestion: function(question) {
+    const re = /^[a-zA-Z0-9¿?-_ ]+$/;
+    return re.test(question);
   }
 };

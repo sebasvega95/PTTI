@@ -1,14 +1,13 @@
 const User = require('../app/models/user');
 const Institute = require('../app/models/institutes');
 const Group = require('../app/models/groups');
+const Test = require('../app/models/tests');
 const utilities = require('./utilities');
 const randomstring = require('randomstring');
 const nodemailer = require('nodemailer');
 const smtpTransport = require('nodemailer-smtp-transport')
 
 function isLoggedIn(req, res, next) {
-  // console.log('isLoggedIn:');
-  // console.log(req.user);
   if (req.isAuthenticated())
     return next();
   res.redirect('/');
@@ -93,7 +92,7 @@ module.exports = (app, passport) => {
 
   app.post('/user-management', isLoggedIn, (req, res) => {
     if (req.user.type.indexOf('admin') !== -1) {
-      console.log('Wanna change:');
+      console.log('Wanna change user:');
       console.log(req.body);
       if (!utilities.validateEmail(req.body.email)) {
         req.flash('userManagementMessage', 'Bad email.');
@@ -314,7 +313,7 @@ module.exports = (app, passport) => {
 
   app.post('/institute-management', isLoggedIn, (req, res) => {
     if (req.user.type.indexOf('admin') !== -1) {
-      console.log('Wanna change:');
+      console.log('Wanna change institute:');
       console.log(req.body);
       if (!utilities.validateIdNum(req.body.nit)) {
         req.flash('instituteManagementMessage', 'Invalid NIT.');
@@ -448,12 +447,12 @@ module.exports = (app, passport) => {
 
   app.post('/group-management', isLoggedIn, (req, res) => {
     if (req.user.type.indexOf('admin') !== -1) {
-      console.log('Wanna change:');
+      console.log('Wanna change group:');
       console.log(req.body);
       if (!utilities.validateIdNum(req.body.instNit)) {
         req.flash('groupManagementMessage', 'Invalid NIT.');
         res.redirect('/group-management');
-      } else if (!utilities.validateGroupName(req.body.name)) {
+      } else if (!utilities.validateKeyName(req.body.name)) {
         req.flash('groupManagementMessage', 'Invalid name.');
         res.redirect('/group-management');
       } else if (!utilities.validateName(req.body.stage)) {
@@ -482,7 +481,6 @@ module.exports = (app, passport) => {
                 console.log(err);
                 req.flash('groupManagementMessage', 'Error writing to database.');
               } else {
-
                 req.flash('groupManagementMessage', 'Changes saved successfully.');
               }
               res.redirect('/group-management');
@@ -500,7 +498,7 @@ module.exports = (app, passport) => {
 
   app.post('/create-group', isLoggedIn, (req, res) => {
     if (req.user.type.indexOf('admin') !== -1) {
-      console.log('Create institute:');
+      console.log('Create group:');
       console.log(req.body);
       Group.findOne({'name': req.body.name}, (err, group) => {
         if (err) {
@@ -519,7 +517,7 @@ module.exports = (app, passport) => {
             req.flash('groupManagementMessage', 'Invalid NIT.');
             return res.redirect('/group-management');
           }
-          if (utilities.validateGroupName(req.body.name)) {
+          if (utilities.validateKeyName(req.body.name)) {
             newGroup.name = req.body.name;
           } else {
             req.flash('groupManagementMessage', 'Invalid name.');
@@ -559,6 +557,126 @@ module.exports = (app, passport) => {
               return res.redirect('/group-management');
             }
           });
+        }
+      });
+    } else {
+      res.redirect('/profile');
+    }
+  });
+
+  app.get('/test-management', isLoggedIn, (req, res) => {
+    if (req.user.type.indexOf('admin') !== -1) {
+      Test.find({}, (err, tests) => {
+        if (err) {
+          console.log(err);
+          res.redirect('/profile');
+        } else {
+          res.render('test-management', {
+            message: req.flash('testManagementMessage'),
+            user: req.user,
+            tests: tests
+          });
+        }
+      });
+    } else {
+      res.redirect('/profile');
+    }
+  });
+
+  app.post('/test-management', isLoggedIn, (req, res) => {
+    if (req.user.type.indexOf('admin') !== -1) {
+      console.log('Wanna change test:');
+      console.log(req.body);
+      if (!utilities.validateKeyName(req.body.name)) {
+        req.flash('testManagementMessage', 'Invalid name.');
+        res.redirect('/test-management');
+      } else {
+        let changes = {
+          name: req.body.name
+        };
+
+        Test.update({name: req.body.orgName}, changes, (err, data) => {
+          if (err) {
+            console.log(err);
+            req.flash('testManagementMessage', 'Error writing to database.');
+          } else {
+            req.flash('testManagementMessage', 'Changes saved successfully.');
+          }
+          res.redirect('/test-management');
+        });
+      }
+    } else {
+      res.redirect('/profile');
+    }
+  });
+
+  app.post('/create-test', isLoggedIn, (req, res) => {
+    if (req.user.type.indexOf('admin') !== -1) {
+      console.log('Create test:');
+      console.log(req.body);
+      Test.findOne({'name': req.body.name}, (err, test) => {
+        if (err) {
+          console.log(err);
+          req.flash('testManagementMessage', 'Error writing to database.');
+          res.redirect('/test-management');
+        } else if (test) {
+          req.flash('testManagementMessage', 'That name is already taken.');
+          res.redirect('/test-management');
+        } else {
+          let newTest = new Test();
+
+          if (utilities.validateKeyName(req.body.name)) {
+            newTest.name = req.body.name;
+          } else {
+            req.flash('testManagementMessage', 'Invalid name.');
+            return res.redirect('/test-management');
+          }
+
+          newTest.save((err) => {
+            if (err) {
+              console.log(err);
+              req.flash('testManagementMessage', 'Error writing to database.');
+            } else {
+              req.flash('testManagementMessage', 'Test created successfully.');
+            }
+            res.redirect('/test-management');
+          });
+        }
+      });
+    } else {
+      res.redirect('/profile');
+    }
+  });
+
+  app.post('/add-question', isLoggedIn, (req, res) => {
+    if (req.user.type.indexOf('admin') !== -1) {
+      console.log('Add question:');
+      console.log(req.body);
+      Test.findOne({'name': req.body.name}, (err, test) => {
+        if (err) {
+          console.log(err);
+          req.flash('testManagementMessage', 'Error writing to database.');
+          res.redirect('/test-management');
+        } else if (test) {
+          if (!utilities.validateQuestion(req.body.statement)) {
+            req.flash('testManagementMessage', 'Invalid statement.');
+            res.redirect('/test-management');
+          } else {
+            let questions = test.questions.slice(0);
+            questions.push(req.body.statement);
+            Test.update({name: req.body.name}, {questions}, (err, data) => {
+              if (err) {
+                console.log(err);
+                req.flash('testManagementMessage', 'Error writing to database.');
+              } else {
+                req.flash('testManagementMessage', 'Question saved successfully.');
+              }
+              res.redirect('/test-management');
+            });
+          }
+        } else {
+          req.flash('testManagementMessage', 'No such test.');
+          res.redirect('/test-management');
         }
       });
     } else {

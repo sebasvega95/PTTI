@@ -29,15 +29,16 @@
      <li class="active"><a href="/user-management">User management</a></li>
      <li><a href="/institute-management">Institute management</a></li>
      <li><a href="/group-management">Group management</a></li>
+     <li><a href="/test-management">Test management</a></li>
      <% } %>
     </ul>
     <div class="container">
       <div class="row">
         <div class="col-sm-6col-md-offset-3 ">
           <div class="page-header text-center">
-            <h1><span class="fa fa-users"></span> User management</h1>
+            <h1><span class="fa fa-user"></span> User management</h1>
             <% if (message.length > 0) { %>
-              <div class="alert alert-danger alert-dismissable">
+              <div class="alert alert-info alert-dismissable">
                 <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
                 <p><%= message %></p>
               </div>
