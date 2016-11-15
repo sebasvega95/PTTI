@@ -27,6 +27,7 @@
      <li><a href="/profile">Profile</a></li>
      <% if (typeof user == 'object' && user && user.type.indexOf('admin') !== -1) { %>
      <li class="active"><a href="/user-management">User management</a></li>
+     <li><a href="/institute-management">Institute management</a></li>
      <% } %>
     </ul>
     <div class="container">
@@ -35,17 +36,10 @@
           <div class="page-header text-center">
             <h1><span class="fa fa-users"></span> User management</h1>
             <% if (message.length > 0) { %>
-              <% if (message.indexOf('success') !== -1) { %>
-              <div class="alert alert-success alert-dismissable">
+              <div class="alert alert-danger alert-dismissable">
                 <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
                 <p><%= message %></p>
               </div>
-              <% } else { %>
-                <div class="alert alert-danger alert-dismissable">
-                  <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                  <p><%= message %></p>
-                </div>
-              <% } %>
             <% } %>
           </div>
           <% for (let u of users) { %>

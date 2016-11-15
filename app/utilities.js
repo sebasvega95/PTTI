@@ -56,5 +56,10 @@ module.exports = {
 
   vaidateUserType: function(admin, psychologist, student) {
     return admin || psychologist || student;
+  },
+
+  validateWebsite: function(website) {
+    const re = /^([A-Za-z]{3,9}:(?:\/\/)?)[A-Za-z0-9\.\-]+|(?:www\.)[A-Za-z0-9\.\-]+$/;
+    return re.test(website);
   }
 };

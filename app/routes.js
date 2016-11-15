@@ -1,12 +1,13 @@
 const User = require('../app/models/user');
+const Institute = require('../app/models/institutes');
 const utilities = require('./utilities');
 const randomstring = require('randomstring');
 const nodemailer = require('nodemailer');
 const smtpTransport = require('nodemailer-smtp-transport')
 
 function isLoggedIn(req, res, next) {
-  console.log('isLoggedIn:');
-  console.log(req.user);
+  // console.log('isLoggedIn:');
+  // console.log(req.user);
   if (req.isAuthenticated())
     return next();
   res.redirect('/');
@@ -107,6 +108,8 @@ module.exports = (app, passport) => {
         req.flash('userManagementMessage', 'Invalid gender.');
       } else if (!utilities.validatePhoneNumber(req.body.phoneNumber)) {
         req.flash('userManagementMessage', 'Invalid phoneNumber.');
+      } else if (!utilities.validateName(req.body.address)) {
+        req.flash('userManagementMessage', 'Invalid address.');
       } else if(!utilities.vaidateUserType(req.body.admin, req.body.psychologist, req.body.student)) {
         req.flash('userManagementMessage', 'Invalid user type.');
       } else {
@@ -119,6 +122,7 @@ module.exports = (app, passport) => {
           birthDate: req.body.birthDate,
           gender: req.body.gender,
           phoneNumber: req.body.phoneNumber,
+          address: req.body.address,
           type: []
         };
 
@@ -271,6 +275,134 @@ module.exports = (app, passport) => {
               req.flash('userManagementMessage', 'User created successfully.');
             }
             res.redirect('/user-management');
+          });
+        }
+      });
+    } else {
+      res.redirect('/profile');
+    }
+  });
+
+  app.get('/institute-management', isLoggedIn, (req, res) => {
+    if (req.user.type.indexOf('admin') !== -1) {
+      Institute.find({}, (err, institutes) => {
+        if (err) {
+          console.log(err);
+          res.redirect('/profile');
+        } else {
+          res.render('institute-management', {
+            message: req.flash('instituteManagementMessage'),
+            user: req.user,
+            institutes: institutes
+          });
+        }
+      });
+    } else {
+      res.redirect('/profile');
+    }
+  });
+
+  app.post('/institute-management', isLoggedIn, (req, res) => {
+    if (req.user.type.indexOf('admin') !== -1) {
+      console.log('Wanna change:');
+      console.log(req.body);
+      if (!utilities.validateIdNum(req.body.nit)) {
+        req.flash('instituteManagementMessage', 'Invalid NIT.');
+      } else if (!utilities.validateName(req.body.name)) {
+        req.flash('instituteManagementMessage', 'Invalid name.');
+      } else if (!utilities.validatePhoneNumber(req.body.phoneNumber)) {
+        req.flash('instituteManagementMessage', 'Invalid phoneNumber.');
+      } else if (!utilities.validateName(req.body.address)) {
+        req.flash('instituteManagementMessage', 'Invalid address.');
+      } else if (!utilities.validateName(req.body.city)) {
+        req.flash('instituteManagementMessage', 'Invalid city.');
+      } else if(!utilities.validateWebsite(req.body.website)) {
+        req.flash('instituteManagementMessage', 'Invalid website.');
+      } else {
+        let changes = {
+          nit: req.body.nit,
+          name: req.body.name,
+          phoneNumber: req.body.phoneNumber,
+          address: req.body.address,
+          city: req.body.city,
+          website: req.body.website
+        };
+
+        Institute.update({nit: req.body.orgNit}, changes, (err, data) => {
+          if (err) {
+            console.log(err);
+            req.flash('instituteManagementMessage', 'Error writing to database.');
+          } else {
+            req.flash('instituteManagementMessage', 'Changes saved successfully.');
+          }
+          res.redirect('/institute-management');
+        });
+      }
+    } else {
+      res.redirect('/profile');
+    }
+  });
+
+  app.post('/create-institute', isLoggedIn, (req, res) => {
+    if (req.user.type.indexOf('admin') !== -1) {
+      console.log('Create institute:');
+      console.log(req.body);
+      Institute.findOne({'nit': req.body.nit}, (err, institute) => {
+        if (err) {
+          console.log(err);
+          req.flash('instituteManagementMessage', 'Error writing to database.');
+          res.redirect('/institute-management');
+        } else if (institute) {
+          req.flash('instituteManagementMessage', 'That NIT is already taken.');
+          res.redirect('/institute-management');
+        } else {
+          let newInst = new Institute();
+
+          if (utilities.validateIdNum(req.body.nit)) {
+            newInst.nit = req.body.nit;
+          } else {
+            req.flash('instituteManagementMessage', 'Invalid NIT.');
+            return res.redirect('/institute-management');
+          }
+          if (utilities.validateName(req.body.name)) {
+            newInst.name = req.body.name;
+          } else {
+            req.flash('instituteManagementMessage', 'Invalid name.');
+            return res.redirect('/institute-management');
+          }
+          if (utilities.validateName(req.body.address)) {
+            newInst.address = req.body.address;
+          } else {
+            req.flash('instituteManagementMessage', 'Invalid address.');
+            return res.redirect('/institute-management');
+          }
+          if (utilities.validatePhoneNumber(req.body.phoneNumber)) {
+            newInst.phoneNumber = req.body.phoneNumber;
+          } else {
+            res.redirect('/institute-management');
+            return req.flash('instituteManagementMessage', 'Invalid phoneNumber.');
+          }
+          if (utilities.validateName(req.body.city)) {
+            newInst.city = req.body.city;
+          } else {
+            req.flash('instituteManagementMessage', 'Invalid city.');
+            return res.redirect('/institute-management');
+          }
+          if (utilities.validateWebsite(req.body.website)) {
+            newInst.website = req.body.website;
+          } else {
+            req.flash('instituteManagementMessage', 'Invalid website.');
+            return res.redirect('/institute-management');
+          }
+
+          newInst.save((err) => {
+            if (err) {
+              console.log(err);
+              req.flash('instituteManagementMessage', 'Error writing to database.');
+            } else {
+              req.flash('instituteManagementMessage', 'Institute created successfully.');
+            }
+            res.redirect('/institute-management');
           });
         }
       });
