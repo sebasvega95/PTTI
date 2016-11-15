@@ -53,6 +53,16 @@
                 <% } %>
               </ul>
             </p>
+            <% if (user.type.indexOf('student') !== -1) { %>
+              <p>
+                <strong>Assigned tests</strong>:
+                <ul>
+                  <% for (let t of user.tests) { %>
+                    <li><%= t.name %></li>
+                  <% } %>
+                </ul>
+              </p>
+            <% } %>
           </div>
         </div>
       </div>
