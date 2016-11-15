@@ -1,5 +1,6 @@
 const User = require('../app/models/user');
 const Institute = require('../app/models/institutes');
+const Group = require('../app/models/groups');
 const utilities = require('./utilities');
 const randomstring = require('randomstring');
 const nodemailer = require('nodemailer');
@@ -334,7 +335,6 @@ module.exports = (app, passport) => {
         req.flash('instituteManagementMessage', 'Invalid website.');
         res.redirect('/institute-management');
       } else {
-        console.log('change');
         let changes = {
           nit: req.body.nit,
           name: req.body.name,
@@ -349,8 +349,6 @@ module.exports = (app, passport) => {
             console.log(err);
             req.flash('instituteManagementMessage', 'Error writing to database.');
           } else {
-            console.log('change ok');
-
             req.flash('instituteManagementMessage', 'Changes saved successfully.');
           }
           res.redirect('/institute-management');
@@ -421,6 +419,145 @@ module.exports = (app, passport) => {
               req.flash('instituteManagementMessage', 'Institute created successfully.');
             }
             res.redirect('/institute-management');
+          });
+        }
+      });
+    } else {
+      res.redirect('/profile');
+    }
+  });
+
+  app.get('/group-management', isLoggedIn, (req, res) => {
+    if (req.user.type.indexOf('admin') !== -1) {
+      Group.find({}, (err, groups) => {
+        if (err) {
+          console.log(err);
+          res.redirect('/profile');
+        } else {
+          res.render('group-management', {
+            message: req.flash('groupManagementMessage'),
+            user: req.user,
+            groups: groups
+          });
+        }
+      });
+    } else {
+      res.redirect('/profile');
+    }
+  });
+
+  app.post('/group-management', isLoggedIn, (req, res) => {
+    if (req.user.type.indexOf('admin') !== -1) {
+      console.log('Wanna change:');
+      console.log(req.body);
+      if (!utilities.validateIdNum(req.body.instNit)) {
+        req.flash('groupManagementMessage', 'Invalid NIT.');
+        res.redirect('/group-management');
+      } else if (!utilities.validateGroupName(req.body.name)) {
+        req.flash('groupManagementMessage', 'Invalid name.');
+        res.redirect('/group-management');
+      } else if (!utilities.validateName(req.body.stage)) {
+        req.flash('groupManagementMessage', 'Invalid stage.');
+        res.redirect('/group-management');
+      } else if (!utilities.validateName(req.body.workTime)) {
+        req.flash('groupManagementMessage', 'Invalid work time.');
+        res.redirect('/group-management');
+      } else {
+        Institute.findOne({'nit': req.body.instNit}, (err, institute) => {
+          if (err) {
+            console.log(err);
+            req.flash('groupManagementMessage', 'Error writing to database.');
+            return res.redirect('/group-management');
+          }
+          if (institute) {
+            let changes = {
+              instNit: req.body.instNit,
+              name: req.body.name,
+              stage: req.body.stage,
+              workTime: req.body.workTime
+            };
+
+            Group.update({name: req.body.orgName}, changes, (err, data) => {
+              if (err) {
+                console.log(err);
+                req.flash('groupManagementMessage', 'Error writing to database.');
+              } else {
+
+                req.flash('groupManagementMessage', 'Changes saved successfully.');
+              }
+              res.redirect('/group-management');
+            });
+          } else {
+            req.flash('groupManagementMessage', 'No such institute.');
+            return res.redirect('/group-management');
+          }
+        });
+      }
+    } else {
+      res.redirect('/profile');
+    }
+  });
+
+  app.post('/create-group', isLoggedIn, (req, res) => {
+    if (req.user.type.indexOf('admin') !== -1) {
+      console.log('Create institute:');
+      console.log(req.body);
+      Group.findOne({'name': req.body.name}, (err, group) => {
+        if (err) {
+          console.log(err);
+          req.flash('groupManagementMessage', 'Error writing to database.');
+          res.redirect('/group-management');
+        } else if (group) {
+          req.flash('groupManagementMessage', 'That name is already taken.');
+          res.redirect('/group-management');
+        } else {
+          let newGroup = new Group();
+
+          if (utilities.validateIdNum(req.body.instNit)) {
+            newGroup.instNit = req.body.instNit;
+          } else {
+            req.flash('groupManagementMessage', 'Invalid NIT.');
+            return res.redirect('/group-management');
+          }
+          if (utilities.validateGroupName(req.body.name)) {
+            newGroup.name = req.body.name;
+          } else {
+            req.flash('groupManagementMessage', 'Invalid name.');
+            return res.redirect('/group-management');
+          }
+          if (utilities.validateName(req.body.stage)) {
+            newGroup.stage = req.body.stage;
+          } else {
+            req.flash('groupManagementMessage', 'Invalid stage.');
+            return res.redirect('/group-management');
+          }
+          if (utilities.validateName(req.body.workTime)) {
+            newGroup.workTime = req.body.workTime;
+          } else {
+            req.flash('groupManagementMessage', 'Invalid work time.');
+            return res.redirect('/group-management');
+          }
+
+          Institute.findOne({'nit': req.body.instNit}, (err, institute) => {
+            if (err) {
+              console.log(err);
+              req.flash('groupManagementMessage', 'Error writing to database.');
+              return res.redirect('/group-management');
+            }
+            if (institute) {
+              newGroup.save((err) => {
+                if (err) {
+                  console.log(err);
+                  req.flash('groupManagementMessage', 'Error writing to database.');
+                } else {
+                  req.flash('groupManagementMessage', 'Group created successfully.');
+                }
+                res.redirect('/group-management');
+              });
+            } else {
+              req.flash('groupManagementMessage', 'No such institute.');
+              return res.redirect('/group-management');
+            }
           });
         }
       });

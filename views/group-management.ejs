@@ -20,22 +20,22 @@
 
     <link href="https://code.jquery.com/ui/1.12.1/themes/ui-lightness/jquery-ui.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/layout.css">
-    <title>PTTI Institute management</title>
+    <title>PTTI Group management</title>
   </head>
   <body>
     <ul class="nav nav-pills">
      <li><a href="/profile">Profile</a></li>
      <% if (typeof user == 'object' && user && user.type.indexOf('admin') !== -1) { %>
      <li><a href="/user-management">User management</a></li>
-     <li class="active"><a href="/institute-management">Institute management</a></li>
-     <li><a href="/group-management">Group management</a></li>
+     <li><a href="/institute-management">Institute management</a></li>
+     <li class="active"><a href="/group-management">Group management</a></li>
      <% } %>
     </ul>
     <div class="container">
       <div class="row">
         <div class="col-sm-6col-md-offset-3 ">
           <div class="page-header text-center">
-            <h1><span class="fa fa-university"></span> Institute management</h1>
+            <h1><span class="fa fa-university"></span> Group management</h1>
             <% if (message.length > 0) { %>
               <div class="alert alert-danger alert-dismissable">
                 <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
@@ -43,14 +43,12 @@
               </div>
             <% } %>
           </div>
-          <% for (let u of institutes) { %>
+          <% for (let u of groups) { %>
             <div class="well">
-              <h3><span class="fa fa-university"></span> <%- u.name %> </h3>
-              <p><strong>NIT</strong>: <%- u.nit %></p>
-              <p><strong>Address</strong>: <%- u.address %> </p>
-              <p><strong>City</strong>: <%- u.city %> </p>
-              <p><strong>Phone number</strong>: <%- u.phoneNumber %> </p>
-              <p><strong>Website</strong>: <%- u.website %></p>
+              <h3><span class="fa fa-users"></span> <%- u.name %> </h3>
+              <p><strong>Institute NIT</strong>: <%- u.instNit %></p>
+              <p><strong>Stage</strong>: <%- u.stage %> </p>
+              <p><strong>Work time</strong>: <%- u.workTime %> </p>
               <button type="button" class="btn btn-info"
               data-toggle="modal" data-target="#modal-<%= u._id %>">
                 Edit
@@ -64,31 +62,23 @@
                     <h4 class="modal-title">Editing <%- u.name %></h4>
                   </div>
                   <div class="modal-body">
-                    <form action="/institute-management" method="post">
-                      <input type="hidden" name="orgNit" value="<%- u.nit %>" />
-                      <div class="form-group">
-                        <label>NIT</label>
-                        <input type="number" class="form-control" name="nit" min="1" max="999999999999999" value="<%- u.nit %>"/>
-                      </div>
+                    <form action="/group-management" method="post">
+                      <input type="hidden" name="orgName" value="<%- u.name %>" />
                       <div class="form-group">
                         <label>Name</label>
                         <input type="text" class="form-control" name="name" value="<%- u.name %>" />
                       </div>
                       <div class="form-group">
-                        <label>Address</label>
-                        <input type="text" class="form-control" name="address" value="<%- u.address %>" />
+                        <label>Institute NIT</label>
+                        <input type="number" class="form-control" name="instNit" min="1" max="999999999999999" value="<%- u.instNit %>"/>
                       </div>
                       <div class="form-group">
-                        <label>City</label>
-                        <input type="text" class="form-control" name="city" value="<%- u.city %>" />
+                        <label>Stage</label>
+                        <input type="text" class="form-control" name="stage" value="<%- u.stage %>" />
                       </div>
                       <div class="form-group">
-                        <label>Phone number</label>
-                        <input type="number" class="form-control" name="phoneNumber" min="1000000" max="9999999999" value="<%- u.phoneNumber %>" />
-                      </div>
-                      <div class="form-group">
-                        <label>Website</label>
-                        <input type="text" class="form-control" name="website" value="<%- u.website %>" />
+                        <label>Work time</label>
+                        <input type="text" class="form-control" name="workTime" value="<%- u.workTime %>" />
                       </div>
                       <button type="submit" class="btn btn-warning">Save</button>
                       <button type="reset" class="btn btn-default">Reset</button>
@@ -102,43 +92,35 @@
           <% } %>
           <div class="add">
             <button type="button" class="btn btn-success btn-lg"
-            data-toggle="modal" data-target="#modal-add-insitute">
-              Add new institute
+            data-toggle="modal" data-target="#modal-add-group">
+              Add new group
             </button>
           </div>
-          <div id="modal-add-insitute" class="modal fade" role="dialog">
+          <div id="modal-add-group" class="modal fade" role="dialog">
             <div class="modal-dialog">
               <div class="modal-content">
                 <div class="modal-header">
                   <button type="button" class="close" data-dismiss="modal">&times;</button>
-                  <h4 class="modal-title">New institute </h4>
+                  <h4 class="modal-title">New group </h4>
                 </div>
                 <div class="modal-body">
-                  <form action="/create-institute" method="post">
-                    <input type="hidden" name="orgNit" />
+                  <form action="/create-group" method="post">
+                    <input type="hidden" name="orgName" />
                     <div class="form-group">
-                      <label>NIT</label>
-                      <input type="number" class="form-control" name="nit" min="1" max="999999999999999" />
-                    </div>
-                    <div class="form-group">
-                      <label>Name(s)</label>
+                      <label>Name</label>
                       <input type="text" class="form-control" name="name" />
                     </div>
                     <div class="form-group">
-                      <label>Address</label>
-                      <input type="text" class="form-control" name="address" />
+                      <label>Institute NIT</label>
+                      <input type="number" class="form-control" name="instNit" min="1" max="999999999999999" />
                     </div>
                     <div class="form-group">
-                      <label>City</label>
-                      <input type="text" class="form-control" name="city" />
+                      <label>Stage</label>
+                      <input type="text" class="form-control" name="stage" />
                     </div>
                     <div class="form-group">
-                      <label>Phone number</label>
-                      <input type="number" class="form-control" name="phoneNumber" min="1000000" max="9999999999" />
-                    </div>
-                    <div class="form-group">
-                      <label>Website</label>
-                      <input type="text" class="form-control" name="website" />
+                      <label>Work time</label>
+                      <input type="text" class="form-control" name="workTime" />
                     </div>
                     <button type="submit" class="btn btn-warning">Save</button>
                   </form>

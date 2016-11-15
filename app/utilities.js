@@ -61,5 +61,10 @@ module.exports = {
   validateWebsite: function(website) {
     const re = /^([A-Za-z]{3,9}:(?:\/\/)?)[A-Za-z0-9\.\-]+|(?:www\.)[A-Za-z0-9\.\-]+$/;
     return re.test(website);
+  },
+
+  validateGroupName: function (name) {
+    const re = /^[a-zA-Z0-9-_]+$/;
+    return re.test(name);
   }
 };
