@@ -31,6 +31,9 @@
      <li><a href="/group-management">Group management</a></li>
      <li><a href="/test-management">Test management</a></li>
      <% } %>
+     <% if (typeof user == 'object' && user && user.type.indexOf('psychologist') !== -1) { %>
+       <li><a href="/testxuser-management">TestsxUser management</a></li>
+     <% } %>
     </ul>
     <div class="container">
       <div class="row">
@@ -54,6 +57,14 @@
                 <p><strong>Gender</strong>: <%- u.gender %> </p>
                 <p><strong>Address</strong>: <%- u.address %> </p>
                 <p><strong>Phone number</strong>: <%- u.phoneNumber %> </p>
+                <p>
+                  <strong>Roles</strong>:
+                  <ul>
+                    <% for (t of u.type) { %>
+                      <li><%= t.charAt(0).toUpperCase() + t.slice(1); %></li>
+                    <% } %>
+                  </ul>
+                </p>
                 <form action="/toggle-disable" method="post">
                   <button type="button" class="btn btn-info"
                   data-toggle="modal" data-target="#modal-<%= u._id %>">

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="favicon.ico">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+     integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
+     integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css"
+     integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+    integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script
+      src="http://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
+      integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
+      crossorigin="anonymous"></script>
+
+    <link href="https://code.jquery.com/ui/1.12.1/themes/ui-lightness/jquery-ui.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/layout.css">
+    <title>PTTI Tests per user management</title>
+  </head>
+  <body>
+    <ul class="nav nav-pills">
+      <li><a href="/profile">Profile</a></li>
+      <% if (typeof user == 'object' && user && user.type.indexOf('admin') !== -1) { %>
+        <li><a href="/user-management">User management</a></li>
+        <li><a href="/institute-management">Institute management</a></li>
+        <li><a href="/group-management">Group management</a></li>
+        <li><a href="/test-management">Test management</a></li>
+      <% } %>
+      <% if (typeof user == 'object' && user && user.type.indexOf('psychologist') !== -1) { %>
+        <li class="active"><a href="/testxuser-management">TestsxUser management</a></li>
+      <% } %>
+    </ul>
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-6col-md-offset-3 ">
+          <div class="page-header text-center">
+            <h1><span class="fa fa-pencil"></span> Tests per user management</h1>
+            <% if (message.length > 0) { %>
+              <div class="alert alert-info alert-dismissable">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                <p><%= message %></p>
+              </div>
+            <% } %>
+          </div>
+          <% for (let u of users.filter(us => (us.type.indexOf('student') !== -1))) { %>
+            <div class="well">
+              <h3><span class="fa fa-user"></span> <%- u.name %> </h3>
+              <p><strong>email</strong>: <%- u.email %></p>
+              <p><strong>ID</strong>: <%- u.idType %> <%- u.idNum %></p>
+              <p><strong>Birth date</strong>: <%- u.birthDate %> </p>
+              <p><strong>Gender</strong>: <%- u.gender %> </p>
+              <p><strong>Address</strong>: <%- u.address %> </p>
+              <p><strong>Phone number</strong>: <%- u.phoneNumber %> </p>
+              <p>
+                <strong>Assigned tests</strong>:
+                <ul>
+                  <% for (let t of u.tests) { %>
+                    <li><%= t.name %></li>
+                  <% } %>
+                </ul>
+              </p>
+              <button type="button" class="btn btn-info"
+              data-toggle="modal" data-target="#modal-<%= u._id %>">
+                Assign test
+              </button>
+            </div>
+            <div id="modal-<%= u._id %>" class="modal fade" role="dialog">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Assigning test to <%- u.name %></h4>
+                  </div>
+                  <div class="modal-body">
+                    <form action="/assign-test" method="post">
+                      <input type="hidden" name="email" value="<%- u.email %>" />
+                      <div class="form-group">
+                        <label>Test name</label>
+                        <select class="form-control" name="testName">
+                          <% for (let t of tests) { %>
+                            <% if (u.tests.indexOf(t.name) === -1) { %>
+                              <option value="<%- t.name %>"><%= t.name %></option>
+                            <% } %>
+                          <% } %>
+                        </select>
+                      </div>
+                      <button type="submit" class="btn btn-warning">Save</button>
+                      <button type="reset" class="btn btn-default">Reset</button>
+                    </form>
+                  </div>
+                  <div class="modal-footer">
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

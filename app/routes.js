@@ -684,6 +684,85 @@ module.exports = (app, passport) => {
     }
   });
 
+  app.get('/testxuser-management', isLoggedIn, (req, res) => {
+    if (req.user.type.indexOf('psychologist') !== -1) {
+      Test.find({}, (err, tests) => {
+        if (err) {
+          console.log(err);
+          res.redirect('/profile');
+        } else {
+          User.find({}, (err, users) => {
+            if (err) {
+              console.log(err);
+              res.redirect('/profile');
+            } else {
+              res.render('testxuser-management', {
+                message: req.flash('testxuserManagementMessage'),
+                user: req.user,
+                users: users,
+                tests: tests
+              });
+            }
+          });
+        }
+      });
+    } else {
+      res.redirect('/profile');
+    }
+  });
+
+  app.post('/assign-test', isLoggedIn, (req, res) => {
+    if (req.user.type.indexOf('psychologist') !== -1) {
+      console.log('Assign test:');
+      console.log(req.body);
+      User.findOne({email: req.body.email}, (err, user) => {
+        if (err) {
+          console.log(err);
+          req.flash('testxuserManagementMessage', 'Error writing to database.');
+          res.redirect('/test-management');
+        } else if (user && user.type.indexOf('student') !== -1) {
+          Test.findOne({'name': req.body.testName}, (err, test) => {
+            if (err) {
+              console.log(err);
+              req.flash('testxuserManagementMessage', 'Error writing to database.');
+              res.redirect('/testxuser-management');
+            } else if (test) {
+              let t = {};
+              t.name = test.name;
+              t.answers = test.questions.slice(0);
+              t.answers.forEach((q, i, arr) => {
+                arr[i] = '';
+              });
+
+              let userTests = [];
+              if (user.tests)
+                userTests = user.tests.slice(0);
+              userTests.push(t);
+
+              User.update({email: req.body.email}, {tests: userTests}, (err, data) => {
+                if (err) {
+                  console.log(err);
+                  req.flash('testxuserManagementMessage', 'Error writing to database.');
+                } else {
+                  req.flash('testxuserManagementMessage', 'Test assigned successfully.');
+                }
+                res.redirect('/testxuser-management');
+              });
+            } else {
+              req.flash('testxuserManagementMessage', 'No such test.');
+              res.redirect('/testxuser-management');
+            }
+          });
+        } else {
+          req.flash('testxuserManagementMessage', 'No such student.');
+          res.redirect('/testxuser-management');
+        }
+      });
+    } else {
+      res.redirect('/profile');
+    }
+  });
+
   app.get('/forgot-pass', (req, res) => {
     res.render('forgot-pass', {
       message: req.flash('forgotPassMessage')

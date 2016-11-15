@@ -26,6 +26,9 @@
      <li><a href="/group-management">Group management</a></li>
      <li><a href="/test-management">Test management</a></li>
      <% } %>
+     <% if (typeof user == 'object' && user && user.type.indexOf('psychologist') !== -1) { %>
+       <li><a href="/testxuser-management">TestsxUser management</a></li>
+     <% } %>
     </ul>
     <div class="container">
       <div class="row">
@@ -42,6 +45,14 @@
             <p><strong>Gender</strong>: <%- user.gender %> </p>
             <p><strong>Address</strong>: <%- user.address %> </p>
             <p><strong>Phone number</strong>: <%- user.phoneNumber %> </p>
+            <p>
+              <strong>Roles</strong>
+              <ul>
+                <% for (t of user.type) { %>
+                  <li><%= t.charAt(0).toUpperCase() + t.slice(1); %></li>
+                <% } %>
+              </ul>
+            </p>
           </div>
         </div>
       </div>
